@@ -13,6 +13,6 @@ chmod +x ./smfetch
 ./smfetch
 ```
 ### Screenshots
-Not available now. 
+![Alt text](https://i.imgur.com/9qXK0Ix.png "Screenshot")
 
 If you have bugs in the code or suggestions for improving the code, submit a pull request. I usually update the code on sundays. 
