@@ -57,7 +57,7 @@ else
 fi
 
 # Setting variables
-gpu=$()
+gpu=$(lspci | grep VGA | cut -d ":" -f3)
 user_hostname="$(whoami)@$(cat /etc/hostname)"
 cpumodel=$(cat /proc/cpuinfo | grep 'model name' | uniq | cut -c 14-)
 currently_shell=$(echo $SHELL | cut -c 6-)
@@ -67,19 +67,14 @@ session_type=$(echo $XDG_SESSION_TYPE)
 #text_color='\033[1;34m' #if you want to use a fixed color use this
 remove_color='\033[0m'
 
-if [[ ! -z "${XDG_CURRENT_DESKTOP}" ]] ; then
-	check_de="${XDG_CURRENT_DESKTOP}"
+
+if [[ $(lspci) ]]; then
+    lspci_check=1
 else
-	check_de="Not Found"
+    lspci_check=0
 fi
 
-if [[ ! -z "${lspci | grep VGA | cut -d ":" -f3}" ]] ; then
-	gpu="${lspci | grep VGA | cut -d ":" -f3}"
-else
-	gpu="Not Found"
-fi
-
-if [[ "${session_type}" == "" ]] ; then #When the session cannot be detected.
+if [[ "${XDG_SESSION_TYPE}" == "" ]] ; then #When the session cannot be detected.
 session_type="tty"
 fi
 
@@ -88,13 +83,16 @@ echo -e ${text_color}Host:${remove_color} $host_hardware
 echo -e ${text_color}User:${remove_color} $user_hostname
 echo -e ${text_color}Shell:${remove_color} $currently_shell
 echo -e ${text_color}Session:${remove_color} $session_type
-echo -e ${text_color}DE:${remove_color} $check_de
 echo -e ${text_color}Distro:${remove_color} $PRETTY_NAME
 echo -e ${text_color}Kernel:${remove_color} $(uname -r)
 echo -e ${text_color}Archihecture:${remove_color} $(uname -m)
 echo -e ${text_color}Packages:${remove_color} $get_packages
 echo -e ${text_color}Disk Usage:${remove_color} $disk_usage
 echo -e ${text_color}CPU: ${remove_color} $cpumodel
+if [[ "${lspci_check}" == "1" ]] ; then
 echo -e ${text_color}GPU: ${remove_color} $gpu
+else
+echo -e ${text_color}GPU: ${remove_color} Unknown
+fi
 echo -e ${text_color}RAM Usage: ${remove_color} $ram_usage
 echo
