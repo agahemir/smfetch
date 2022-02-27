@@ -67,6 +67,12 @@ session_type=$(echo $XDG_SESSION_TYPE)
 #text_color='\033[1;34m' #if you want to use a fixed color use this
 remove_color='\033[0m'
 
+if [[ ! -z "${XDG_CURRENT_DESKTOP}" ]] ; then
+	check_de="${XDG_CURRENT_DESKTOP}"
+else
+	check_de="Not Found"
+fi
+
 if [[ "${session_type}" == "" ]] ; then #When the session cannot be detected.
 session_type="tty"
 fi
@@ -76,6 +82,7 @@ echo -e ${text_color}Host:${remove_color} $host_hardware
 echo -e ${text_color}User:${remove_color} $user_hostname
 echo -e ${text_color}Shell:${remove_color} $currently_shell
 echo -e ${text_color}Session:${remove_color} $session_type
+echo -e ${text_color}DE:${remove_color} $check_de
 echo -e ${text_color}Distro:${remove_color} $PRETTY_NAME
 echo -e ${text_color}Kernel:${remove_color} $(uname -r)
 echo -e ${text_color}Archihecture:${remove_color} $(uname -m)
