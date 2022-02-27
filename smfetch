@@ -57,7 +57,7 @@ else
 fi
 
 # Setting variables
-gpu=$(lspci | grep VGA | cut -d ":" -f3)
+gpu=$()
 user_hostname="$(whoami)@$(cat /etc/hostname)"
 cpumodel=$(cat /proc/cpuinfo | grep 'model name' | uniq | cut -c 14-)
 currently_shell=$(echo $SHELL | cut -c 6-)
@@ -71,6 +71,12 @@ if [[ ! -z "${XDG_CURRENT_DESKTOP}" ]] ; then
 	check_de="${XDG_CURRENT_DESKTOP}"
 else
 	check_de="Not Found"
+fi
+
+if [[ ! -z "${lspci | grep VGA | cut -d ":" -f3}" ]] ; then
+	gpu="${lspci | grep VGA | cut -d ":" -f3}"
+else
+	gpu="Not Found"
 fi
 
 if [[ "${session_type}" == "" ]] ; then #When the session cannot be detected.
