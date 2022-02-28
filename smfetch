@@ -79,15 +79,15 @@ session_type="tty"
 fi
 
 #You can remove the features you don't like by putting the # sign.
+echo -e ${text_color}Distro:${remove_color} $PRETTY_NAME
 echo -e ${text_color}Host:${remove_color} $host_hardware
+echo -e ${text_color}Kernel:${remove_color} $(uname -r)
 echo -e ${text_color}User:${remove_color} $user_hostname
+echo -e ${text_color}Packages:${remove_color} $get_packages
 echo -e ${text_color}Shell:${remove_color} $currently_shell
 echo -e ${text_color}Session:${remove_color} $session_type
-echo -e ${text_color}Distro:${remove_color} $PRETTY_NAME
-echo -e ${text_color}Kernel:${remove_color} $(uname -r)
-echo -e ${text_color}Archihecture:${remove_color} $(uname -m)
-echo -e ${text_color}Packages:${remove_color} $get_packages
 echo -e ${text_color}Disk Usage:${remove_color} $disk_usage
+echo -e ${text_color}Archihecture:${remove_color} $(uname -m)
 echo -e ${text_color}CPU: ${remove_color} $cpumodel
 if [[ "${lspci_check}" == "1" ]] ; then
 echo -e ${text_color}GPU: ${remove_color} $gpu
