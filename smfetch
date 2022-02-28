@@ -1,7 +1,7 @@
 #!/bin/bash
 source /etc/os-release
 fetch=yes
-
+text_color='\033[1;36m' #Color to use when ascii art is not found
 while getopts :n flag
 do
     case "${flag}" in
