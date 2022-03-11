@@ -1,107 +1,124 @@
-#!/bin/bash
+#!/usr/bin/env bash
 source /etc/os-release
-fetch=yes
+fetch="yes"
 
+# parse options
 while getopts :n flag
 do
-    case "${flag}" in
-        n) fetch="nofetch" && text_color="\033[1;37m";;
-    esac
+  case "${flag}" in
+    n) fetch="nofetch" && text_color="\033[1;37m";;
+  esac
 done
 
-if [[ "${NAME}" == "Arch Linux" && "${fetch}" == "yes" ]] ; then
-echo -e "$(<fetches/arch)"
-text_color='\033[1;34m'
-
-elif [[ "${NAME}" == "EndeavourOS" && "${fetch}" == "yes" ]] ; then
-echo -e "$(<fetches/eos)"
-text_color='\033[1;35m'
-
-elif [[ "${NAME}" == "Gentoo" && "${fetch}" == "yes" ]] ; then
-echo -e "$(<fetches/gentoo)"
-text_color='\033[1;35m'
-
-elif [[ "${NAME}" == "Debian GNU/Linux" && "${fetch}" == "yes" ]] ; then
-echo -e "$(<fetches/debian)"
-text_color='\033[1;31m'
-
-elif [[ "${NAME}" == "Ubuntu" && "${fetch}" == "yes" ]] ; then
-echo -e "$(<fetches/ubuntu)"
-text_color='\033[1;33m'
-
-elif [[ "${NAME}" == "Manjaro Linux" && "${fetch}" == "yes" ]] ; then
-echo -e "$(<fetches/manjaro)"
-text_color='\033[1;32m'
+# ascii art
+if [ $fetch == "yes" ]; then
+  case $NAME in
+    "Arch Linux")
+      echo -e "$(<fetches/arch)"
+      text_color='\033[1;34m'
+      ;;
+    "EndeavourOS")
+      echo -e "$(<fetches/eos)"
+      text_color='\033[1;35m'
+      ;;
+    "Gentoo")
+      echo -e "$(<fetches/gentoo)"
+      text_color='\033[1;35m'
+      ;;
+    "Debian GNU/Linux")
+      echo -e "$(<fetches/debian)"
+      text_color='\033[1;31m'  
+      ;;
+    "Ubuntu")
+      echo -e "$(<fetches/ubuntu)"
+      text_color='\033[1;33m'
+      ;;
+    "Manjaro Linux")
+      echo -e "$(<fetches/manjaro)"
+      text_color='\033[1;32m'
+      ;;
+  esac
 fi
 
-# Get amount of installed get_packages 
-case $ID in
-  debian)
-    get_packages=$(dpkg-query -l | wc -l)
-    ;;
-  arch)
-    get_packages=$(pacman -Q | wc -l)
-    ;;
-  alpine)
-    get_packages=$(apk list -I | wc -l)
-    ;;
-  ubuntu)
-    get_packages=$(dpkg-query -l | wc -l)
-    ;;
-  fedora)
-    get_packages=$(dnf list installed | grep -v '^Installed' | wc -l)
-    ;;
-  opensuse)
-    get_packages=$(zypper search -i | wc -l)
-    ;;
-  gentoo)
-    get_packages=$(q qlist -I | wc -l)
-    ;;
-  endeavouros)
-    get_packages=$(pacman -Q | wc -l)
-    ;;
-esac
-
-if [ "$(cat /sys/devices/virtual/dmi/id/product_name)" == "System Product Name" ]; then
-  host_hardware="Unknown"
+# check for package managers in here and exit if none
+if [[ -x "$(command -v apk)" ]]; then
+  ((packages = packages + $(apk list --installed | wc -l)))
+elif [[ -x "$(command -v apt)" ]]; then
+  ((packages = packages + $(apt list --installed | wc -l)))
+elif [[ -x "$(command -v dnf)" ]]; then
+  ((packages = packages + $(dnf list --installed | grep -c -v '^Installed Packages$')))
+elif [[ -x "$(command -v pacman)" ]]; then
+  ((packages = packages + $(pacman -Q | wc -l)))
+elif [[ -x "$(command -v zypper)" ]]; then
+  ((packages = packages + $(zypper search -i | wc -l)))
+elif [[ -x "$(command -v emerge)" ]]; then
+  ((packages = packages + $(q qlist -I | wc -l)))
+elif [[ -x "$(command -v nix-store)" ]]; then
+  ((packages = packages + $(nix-store -q --references /var/run/current-system/sw | cut -d'-' -f2- | wc -l)))
+elif [[ -x "$(command -v xbps-query)" ]]; then
+  ((packages = packages + $(xbps-query -l | awk '{ print $2 }' | xargs -n1 xbps-uhelper getpkgname | wc -l)))
 else
-  host_hardware=$(cat /sys/devices/virtual/dmi/id/product_name)
+  echo "wtf no package manager?!"
+  exit 1
 fi
 
 # Setting variables
-user_hostname="$(whoami)@$(cat /etc/hostname)"
-currently_shell=$(echo $SHELL | cut -c 6-)
+user_hostname="$(whoami)@$(hostname)"
+user_shell=$SHELL
 disk_usage=$(df -h | awk '$NF=="/"{printf "%d/%dGB (%s)\n", $3,$2,$5}')
 ram_usage=$(free -h | awk 'NR==2{printf "%s/%s\n", $3,$2}')
-session_type=$(echo $XDG_SESSION_TYPE)
+session_type=$XDG_SESSION_TYPE
 #text_color='\033[1;34m' #if you want to use a fixed color use this
 remove_color='\033[0m'
 
+# get the host hardware
+read -r version 2>/dev/null </sys/devices/virtual/dmi/id/product_version
+read -r name 2>/dev/null </sys/devices/virtual/dmi/id/product_name
+read -r mobovendor 2>/dev/null </sys/devices/virtual/dmi/id/board_vendor
+read -r mobo 2>/dev/null </sys/devices/virtual/dmi/id/board_name
+host="$mobovendor $name $version $mobo"
+host=${host//To be filled by O.E.M./}
+host=${host//To Be Filled*/}
+host=${host//OEM*/}
+host=${host//Not Applicable/}
+host=${host//System Product Name/}
+host=${host//System Version/}
+host=${host//Undefined/}
+host=${host//Default string/}
+host=${host//Not Specified/}
+host=${host//Type1ProductConfigId/}
+host=${host//INVALID/}
+host=${host//All Series/}
 
+# get gpu
 if [[ $(lspci) ]]; then
-	gpu=$(lspci | grep VGA | cut -d ":" -f3)
-	cpumodel=$(cat /proc/cpuinfo | grep 'model name' | uniq | cut -c 14-)
+  gpu=$(lspci | grep "VGA\|3D" | cut -d ":" -f3)
 else
-	gpu="Unknown"
-	cpumodel="Unknown"
+  gpu="Unknown"
 fi
 
+#get cpu
+cpu_model=$(cat /proc/cpuinfo | grep 'model name' | uniq | cut -c 14-)
+if [ "$cpu_model" == "" ]; then
+  cpu_model="Unknown"
+fi
+
+#if there's no session, should be a tty
 if [[ "${XDG_SESSION_TYPE}" == "" ]] ; then #When the session cannot be detected.
-session_type="tty"
+  session_type="tty"
 fi
 
 #You can remove the features you don't like by putting the # sign.
 echo -e ${text_color}Distro:${remove_color} $PRETTY_NAME
-echo -e ${text_color}Host:${remove_color} $host_hardware
+echo -e ${text_color}Host:${remove_color} $host
 echo -e ${text_color}Kernel:${remove_color} $(uname -r)
 echo -e ${text_color}User:${remove_color} $user_hostname
-echo -e ${text_color}Packages:${remove_color} $get_packages
-echo -e ${text_color}Shell:${remove_color} $currently_shell
+echo -e ${text_color}Packages:${remove_color} $packages
+echo -e ${text_color}Shell:${remove_color} $user_shell
 echo -e ${text_color}Session:${remove_color} $session_type
 echo -e ${text_color}Disk Usage:${remove_color} $disk_usage
 echo -e ${text_color}Archihecture:${remove_color} $(uname -m)
-echo -e ${text_color}CPU: ${remove_color} $cpumodel
+echo -e ${text_color}CPU: ${remove_color} $cpu_model
 echo -e ${text_color}GPU: ${remove_color} $gpu
-
 echo -e ${text_color}RAM Usage: ${remove_color} $ram_usage
 echo
