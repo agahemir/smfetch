@@ -55,7 +55,7 @@ case $ID in
     get_packages=$(zypper search -i | wc -l)
     ;;
   gentoo)
-  get_packages=$(find /var/db/pkg/* | wc -l)
+    get_packages=$(q qlist -I | wc -l)
     ;;
 esac
 
