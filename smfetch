@@ -58,7 +58,7 @@ case $ID in
     get_packages=$(q qlist -I | wc -l)
     ;;
   endeavouros)
-    get_packages=$(q qlist -I | wc -l)
+    get_packages=$(pacman -Q | wc -l)
     ;;
 esac
 
