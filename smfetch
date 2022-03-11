@@ -57,6 +57,9 @@ case $ID in
   gentoo)
     get_packages=$(q qlist -I | wc -l)
     ;;
+  endeavouros)
+    get_packages=$(q qlist -I | wc -l)
+    ;;
 esac
 
 if [ "$(cat /sys/devices/virtual/dmi/id/product_name)" == "System Product Name" ]; then
