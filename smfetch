@@ -64,7 +64,7 @@ fi
 
 # Setting variables
 user_hostname="$(whoami)@$(hostname)"
-user_shell=$SHELL
+user_shell=$(echo $SHELL | cut -c 6-)
 disk_usage=$(df -h | awk '$NF=="/"{printf "%d/%dGB (%s)\n", $3,$2,$5}')
 ram_usage=$(free -h | awk 'NR==2{printf "%s/%s\n", $3,$2}')
 session_type=$XDG_SESSION_TYPE
