@@ -18,6 +18,6 @@ chmod +x ./smfetch
 If you have bugs in the code or suggestions for improving the code, submit a pull request. I usually update the code on sundays. 
 
 ### What works and what doesn't
-The commands are for the linux kernel. Make sure lspci, uname, whoami commands are running on the system. Currently there is support for ASCII art for 6 distributions. However, the script can run on Debian, Arch, Ubuntu, Fedora, OpenSUSE, Alpine and Gentoo or others. (others not tested)
+The commands are for the linux kernel. Make sure lspci, uname, whoami commands are running on the system. Currently there is support for ASCII art for 7 distributions. However, the script can run on Debian, Arch, Ubuntu, Fedora, OpenSUSE, Alpine and Gentoo or others. (others not tested)
 
 Special thanks to me0wing-katto for his help with this code :)
