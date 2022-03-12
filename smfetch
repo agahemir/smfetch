@@ -37,6 +37,10 @@ if [ $fetch == "yes" ]; then
       echo -e "$(<fetches/manjaro)"
       text_color='\033[1;32m'
       ;;
+    "Alpine Linux")
+      echo -e "$(<fetches/alpine)"
+      text_color='\033[1;34m'
+      ;;
   esac
 fi
 
@@ -58,12 +62,12 @@ elif [[ -x "$(command -v nix-store)" ]]; then
 elif [[ -x "$(command -v xbps-query)" ]]; then
   ((packages = packages + $(xbps-query -l | awk '{ print $2 }' | xargs -n1 xbps-uhelper getpkgname | wc -l)))
 else
-  echo "wtf no package manager?!"
+  echo "Unknown"
   exit 1
 fi
 
 # Setting variables
-user_hostname="$(whoami)@$(hostname)"
+user_hostname="$(whoami)@$(cat /etc/hostname)"
 user_shell=$(echo $SHELL | cut -c 6-)
 disk_usage=$(df -h | awk '$NF=="/"{printf "%d/%dGB (%s)\n", $3,$2,$5}')
 ram_usage=$(free -h | awk 'NR==2{printf "%s/%s\n", $3,$2}')
@@ -109,16 +113,16 @@ if [[ "${XDG_SESSION_TYPE}" == "" ]] ; then #When the session cannot be detected
 fi
 
 #You can remove the features you don't like by putting the # sign.
-echo -e ${text_color}Distro:${remove_color} $PRETTY_NAME
-echo -e ${text_color}Host:${remove_color} $host
-echo -e ${text_color}Kernel:${remove_color} $(uname -r)
-echo -e ${text_color}User:${remove_color} $user_hostname
-echo -e ${text_color}Packages:${remove_color} $packages
-echo -e ${text_color}Shell:${remove_color} $user_shell
-echo -e ${text_color}Session:${remove_color} $session_type
-echo -e ${text_color}Disk Usage:${remove_color} $disk_usage
-echo -e ${text_color}Archihecture:${remove_color} $(uname -m)
-echo -e ${text_color}CPU: ${remove_color} $cpu_model
-echo -e ${text_color}GPU: ${remove_color} $gpu
-echo -e ${text_color}RAM Usage: ${remove_color} $ram_usage
+echo -e ${text_color}Distro${remove_color}: $PRETTY_NAME
+echo -e ${text_color}Host${remove_color}: $host
+echo -e ${text_color}Kernel${remove_color}: $(uname -r)
+echo -e ${text_color}User${remove_color}: $user_hostname
+echo -e ${text_color}Packages${remove_color}: $packages
+echo -e ${text_color}Shell${remove_color}: $user_shell
+echo -e ${text_color}Session${remove_color}: $session_type
+echo -e ${text_color}Disk Usage${remove_color}: $disk_usage
+echo -e ${text_color}Archihecture${remove_color}: $(uname -m)
+echo -e ${text_color}CPU${remove_color}: $cpu_model
+echo -e ${text_color}GPU${remove_color}: $gpu
+echo -e ${text_color}RAM Usage${remove_color}: $ram_usage
 echo
